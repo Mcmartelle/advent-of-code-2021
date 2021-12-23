@@ -1,5 +1,5 @@
 extern crate csv;
-extern crate serde;
+// extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
@@ -7,16 +7,19 @@ use std::error::Error;
 use std::io;
 use std::process;
 
-
-// enum Direction {
-//     String::from("forward"),
-//     String::from("down"),
-//     String::from("up"),
-// }
+#[derive(Debug, Deserialize, Serialize, Eq, PartialEq, Clone, Copy)]
+enum Direction {
+    #[serde(rename = "forward")]
+    Forward,
+    #[serde(rename = "down")]
+    Down,
+    #[serde(rename = "up")]
+    Up,
+}
 
 #[derive(Debug, Deserialize)]
 struct Record {
-    direction: String,
+    direction: Direction,
     magnitude: i32,
 }
 
@@ -29,14 +32,13 @@ fn run() -> Result<(), Box<dyn Error>> {
     for result in rdr.deserialize() {
         let record: Record = result?;
         // println!("{:?}", record);
-        match record.direction.as_ref() {
-            "forward" => {
+        match record.direction {
+            Direction::Forward => {
                 horiz_pos += record.magnitude;
                 depth += aim * record.magnitude;
             },
-            "down" => aim += record.magnitude,
-            "up" => aim -= record.magnitude,
-            _ => ()
+            Direction::Down => aim += record.magnitude,
+            Direction::Up => aim -= record.magnitude,
         }
     }
     println!("Product: {:?}", horiz_pos * depth);
