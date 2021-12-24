@@ -33,3 +33,7 @@ path = "advents/day3part1.rs"
 [[example]]
 name = "day22part1"
 path = "advents/day22part1.rs"
+
+[[example]]
+name = "day22part2"
+path = "advents/day22part2.rs"
