@@ -9,7 +9,6 @@ edition = "2018"
 csv = "1.1"
 serde = "1.0.132"
 serde_derive = "1.0.132"
-ndarray = "0.15.4"
 
 [[example]]
 name = "day1part1"
@@ -30,3 +29,7 @@ path = "advents/day2part2.rs"
 [[example]]
 name = "day3part1"
 path = "advents/day3part1.rs"
+
+[[example]]
+name = "day22part1"
+path = "advents/day22part1.rs"
