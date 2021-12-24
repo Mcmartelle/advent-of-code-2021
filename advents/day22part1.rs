@@ -71,14 +71,14 @@ impl Cuboid {
     fn split_x(a: Cuboid, b: Cuboid) -> Vec<Cuboid> {
         let mut v: Vec<Cuboid> = Vec::new();
         if a.x_low < b.x_low && b.x_low < a.x_high && a.x_low < b.x_high && b.x_high < a.x_high { //notch case
-            v.push(Cuboid::new(a.x_low, b.x_low, a.y_low, a.y_high, a.z_low, a.z_high));
-            v.push(Cuboid::new(b.x_high, a.x_high, a.y_low, a.y_high, a.z_low, a.z_high));
+            v.push(Cuboid::new(a.x_low, b.x_low-1, a.y_low, a.y_high, a.z_low, a.z_high));
+            v.push(Cuboid::new(b.x_high+1, a.x_high, a.y_low, a.y_high, a.z_low, a.z_high));
             v.append(&mut Cuboid::split_y(Cuboid::new(b.x_low, b.x_high, a.y_low, a.y_high, a.z_low, a.z_high), b));
+        } else if a.x_low < b.x_low && b.x_low <= a.x_high { // high corner cut case
+            v.push(Cuboid::new(a.x_low, b.x_low-1, a.y_low, a.y_high, a.z_low, a.z_high));
+            v.append(&mut Cuboid::split_y(Cuboid::new(b.x_low, a.x_high, a.y_low, a.y_high, a.z_low, a.z_high), b));
         } else if a.x_low <= b.x_high && b.x_high < a.x_high { // low corner cut case
             v.push(Cuboid::new(b.x_high+1, a.x_high, a.y_low, a.y_high, a.z_low, a.z_high));
-            v.append(&mut Cuboid::split_y(Cuboid::new(b.x_low, a.x_high, a.y_low, a.y_high, a.z_low, a.z_high), b));
-            v.push(Cuboid::new(a.x_low, b.x_low-1, a.y_low, a.y_high, a.z_low, a.z_high));
-        } else if a.x_low < b.x_low && b.x_low <= a.x_high { // high corner cut case
             v.append(&mut Cuboid::split_y(Cuboid::new(a.x_low, b.x_high, a.y_low, a.y_high, a.z_low, a.z_high), b));
         } else { // cheese slice case
             v.append(&mut Cuboid::split_y(a, b));
@@ -89,8 +89,8 @@ impl Cuboid {
     fn split_y(a: Cuboid, b: Cuboid) -> Vec<Cuboid> {
         let mut v: Vec<Cuboid> = Vec::new();
         if a.y_low < b.y_low && b.y_low < a.y_high && a.y_low < b.y_high && b.y_high < a.y_high { //notch case
-            v.push(Cuboid::new(a.x_low, a.x_high, a.y_low, b.y_low, a.z_low, a.z_high));
-            v.push(Cuboid::new(a.x_low, a.x_high, b.y_high, a.y_high, a.z_low, a.z_high));
+            v.push(Cuboid::new(a.x_low, a.x_high, a.y_low, b.y_low-1, a.z_low, a.z_high));
+            v.push(Cuboid::new(a.x_low, a.x_high, b.y_high+1, a.y_high, a.z_low, a.z_high));
             v.append(&mut Cuboid::split_z(Cuboid::new(a.x_low, a.x_high, b.y_low, b.y_high, a.z_low, a.z_high), b));
         } else if a.y_low < b.y_low && b.y_low <= a.y_high { // high corner cut case
             v.push(Cuboid::new(a.x_low, a.x_high, a.y_low, b.y_low-1, a.z_low, a.z_high));
@@ -125,7 +125,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     for result in rdr.deserialize() {
         let record: Record = result?;
         // println!("{:?}", record);
-        let b: Cuboid = Cuboid::new(record.x_low-1, record.x_high, record.y_low-1, record.y_high, record.z_low-1, record.z_high);
+        let b: Cuboid = Cuboid::new(record.x_low, record.x_high, record.y_low, record.y_high, record.z_low, record.z_high);
         let mut temp_v: Vec<Cuboid> = Vec::new();
         let mut read_head: usize = 0;
         match record.on_off {
@@ -170,5 +170,5 @@ fn main() {
 }
 
 fn calc_volume(item: Cuboid) -> i32 {
-    (item.x_high-item.x_low)*(item.y_high-item.y_low)*(item.z_high-item.z_low)
+    (item.x_high-item.x_low+1)*(item.y_high-item.y_low+1)*(item.z_high-item.z_low+1)
 }
